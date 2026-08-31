@@ -29,7 +29,7 @@ from flask_babel import lazy_gettext as N_
 
 from cps.services.worker import CalibreTask
 from cps import db, app
-from cps import logger, config
+from cps import logger, config, content_server
 from cps.subproc_wrapper import process_open
 from flask_babel import gettext as _
 from cps.kobo_sync_status import remove_synced_book
@@ -273,8 +273,8 @@ class TaskConvert(CalibreTask):
                 else:
                     library_path = config.config_calibre_dir
 
-                opf_command = [calibredb_binarypath, 'show_metadata', '--as-opf', str(self.book_id),
-                               '--with-library', library_path]
+                opf_command = ([calibredb_binarypath, 'show_metadata', '--as-opf', str(self.book_id)]
+                               + (content_server.library_arguments() or ['--with-library', library_path]))
                 p = process_open(opf_command, quotes, my_env, newlines=False)
                 lines = list()
                 while p.poll() is None:
